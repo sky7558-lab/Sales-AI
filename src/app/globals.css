@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #0b0d12;
+  color: #e6e9f2;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* iOS safe-area padding helpers */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Hide tap highlight on iOS */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+textarea,
+input,
+button,
+select {
+  font: inherit;
+}
