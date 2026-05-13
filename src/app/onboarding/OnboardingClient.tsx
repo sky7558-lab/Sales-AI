@@ -23,23 +23,12 @@ export function OnboardingClient({
   async function createWorkspace() {
     setBusy(true);
     setErr(null);
-    const { data: ws, error: e1 } = await supabase
-      .from("workspaces")
-      .insert({ name: wsName.trim() || "우리 프로젝트" })
-      .select()
-      .single();
-    if (e1 || !ws) {
-      setErr(e1?.message ?? "워크스페이스 생성 실패");
-      setBusy(false);
-      return;
-    }
-    const { error: e2 } = await supabase.from("workspace_members").insert({
-      workspace_id: ws.id,
-      user_id: userId,
-      display_name: name.trim() || null,
+    const { error } = await supabase.rpc("create_workspace_with_owner", {
+      ws_name: wsName.trim() || "우리 프로젝트",
+      member_name: name.trim() || null,
     });
-    if (e2) {
-      setErr(e2.message);
+    if (error) {
+      setErr(error.message);
       setBusy(false);
       return;
     }

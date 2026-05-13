@@ -107,6 +107,34 @@ drop policy if exists "ws insert" on public.workspaces;
 create policy "ws insert" on public.workspaces
   for insert to authenticated with check (true);
 
+-- Atomic create-workspace-and-add-creator-as-member.
+-- Avoids the chicken-and-egg of needing SELECT on a workspace row before
+-- the creator is a member.
+create or replace function public.create_workspace_with_owner(
+  ws_name text,
+  member_name text
+) returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  new_ws_id uuid;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+  insert into public.workspaces (name)
+    values (coalesce(nullif(trim(ws_name), ''), '우리 프로젝트'))
+    returning id into new_ws_id;
+  insert into public.workspace_members (workspace_id, user_id, display_name)
+    values (new_ws_id, auth.uid(), nullif(trim(member_name), ''));
+  return new_ws_id;
+end;
+$$;
+
+grant execute on function public.create_workspace_with_owner(text, text) to authenticated;
+
 -- workspace_members: a user can see other members of workspaces they belong to.
 drop policy if exists "wm read" on public.workspace_members;
 create policy "wm read" on public.workspace_members
