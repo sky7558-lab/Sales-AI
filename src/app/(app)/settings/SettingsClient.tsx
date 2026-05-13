@@ -25,6 +25,25 @@ export function SettingsClient({
   const [joinId, setJoinId] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [pw, setPw] = useState("");
+  const [pwBusy, setPwBusy] = useState(false);
+
+  async function setPassword() {
+    if (pw.length < 6) {
+      setMsg("비밀번호는 6자 이상이어야 합니다.");
+      return;
+    }
+    setPwBusy(true);
+    setMsg(null);
+    const { error } = await supabase.auth.updateUser({ password: pw });
+    setPwBusy(false);
+    if (error) {
+      setMsg(`비밀번호 설정 실패: ${error.message}`);
+    } else {
+      setPw("");
+      setMsg("비밀번호 설정 완료. 다음부터는 매직링크 없이 로그인 가능.");
+    }
+  }
 
   async function saveName() {
     setMsg(null);
@@ -136,6 +155,29 @@ export function SettingsClient({
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-surface p-4">
+        <h3 className="mb-2 text-sm font-semibold">비밀번호 설정</h3>
+        <p className="mb-2 text-xs text-muted">
+          설정해두면 다른 기기에서도 매직링크 없이 바로 로그인 가능.
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="password"
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+            placeholder="새 비밀번호 (6자 이상)"
+            className="flex-1 rounded-xl border border-border bg-bg px-3 py-2 text-sm outline-none"
+          />
+          <button
+            onClick={setPassword}
+            disabled={pwBusy}
+            className="rounded-xl bg-accent px-3 py-2 text-sm font-medium disabled:opacity-50"
+          >
+            {pwBusy ? "..." : "저장"}
+          </button>
+        </div>
       </section>
 
       <section className="rounded-2xl border border-border bg-surface p-4">
