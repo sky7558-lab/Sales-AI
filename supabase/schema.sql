@@ -102,6 +102,11 @@ drop policy if exists "ws read" on public.workspaces;
 create policy "ws read" on public.workspaces
   for select using (id in (select public.current_user_workspaces()));
 
+-- Any logged-in user can create a new workspace (onboarding "create" flow).
+drop policy if exists "ws insert" on public.workspaces;
+create policy "ws insert" on public.workspaces
+  for insert to authenticated with check (true);
+
 -- workspace_members: a user can see other members of workspaces they belong to.
 drop policy if exists "wm read" on public.workspace_members;
 create policy "wm read" on public.workspace_members
