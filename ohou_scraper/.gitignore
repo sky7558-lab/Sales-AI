@@ -1,0 +1,10 @@
+# 런타임 산출물 (실행 시 생성)
+products.csv
+reviews.json
+summary.md
+errors.log
+raw_captures/
+
+# 파이썬 캐시
+__pycache__/
+*.pyc
